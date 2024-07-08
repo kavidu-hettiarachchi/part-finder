@@ -96,6 +96,7 @@ Part Information Access Flow
 
     - Run the `composer install`
     - Run the `npm install`
+    - Run the `npm run build`
     - Run the `php artisan key:generate`
 
       > Note: Before running the above command, make sure you are in the root
