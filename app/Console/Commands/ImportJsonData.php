@@ -11,7 +11,7 @@ use Carbon\Carbon;
 class ImportJsonData extends Command
 {
     protected $signature = 'import:json {--manual}';
-    protected $description = 'Import JSON data from public/source-data-json/in-progress directory';
+    protected $description = 'Import JSON data from storage/app/source-data-json/in-progress directory';
 
     public function __construct()
     {
@@ -20,9 +20,9 @@ class ImportJsonData extends Command
 
     public function handle()
     {
-        $directory = public_path('source-data-json/in-progress');
-        $completedDirectory = public_path('source-data-json/completed');
-        $files = File::files($directory);
+        $directory = storage_path('app/source-data-json/in-progress');
+        $completedDirectory = storage_path('app/source-data-json/completed');
+        $files = collect(File::files($directory))->filter(fn ($f) => strtolower($f->getExtension()) === 'json');
 
         foreach ($files as $file) {
             try {

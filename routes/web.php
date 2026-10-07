@@ -18,6 +18,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth', 'verified'])->get('/parts/search', [PartController::class, 'search'])->name('parts.search');
+Route::middleware(['auth', 'verified', 'throttle:60,1'])->get('/parts/search', [PartController::class, 'search'])->name('parts.search');
 
 require __DIR__.'/auth.php';
