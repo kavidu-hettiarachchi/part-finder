@@ -2687,8 +2687,6 @@ CREATE TABLE `sessions` (
 -- Dumping data for table `sessions`
 --
 
-INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('shUhceYeFsAVrT7pCBM2J9e6VtOC5LwP4IiDC8Z9', NULL, '127.0.0.1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoieERNWVRJczlFYzRSWk9VQ1FQSU1aSFhOaWxOY2llRTE5TjBSRkpiRCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fX0=', 1720388184);
 
 -- --------------------------------------------------------
 
@@ -2744,8 +2742,6 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`, `phone`) VALUES
-(1, 'Admin', 'admin@admin.com', '2024-07-07 11:31:01', '$2y$12$kFsc.4Dsl41e90mQxPU2beBSHP7ImL3Gp5ngido2Wd9Ru63HIArkW', NULL, '2024-07-07 11:30:31', '2024-07-07 11:31:01', '0000');
 
 --
 -- Indexes for dumped tables

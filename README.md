@@ -114,7 +114,7 @@ Part Information Access Flow
 
 If you are using a fresh database or an existing database with demo data, and you want to import new part information into the database from a JSON file, you can do so in two ways. The first method involves manually running a command, while the other method involves setting up a cron job along with a specific time and command, so that the JSON files are automatically imported into the database. However, you need to copy or move your source data to the following folder, where it will be automatically accessed by the system.
 
-Copy source JSON files to - `{project-root-folder}/public/source-data-json/in-progress`
+Copy source JSON files to - `{project-root-folder}/storage/app/source-data-json/in-progress`
 
 ![enter image description here](https://kavidu.com/dev/find/10.png)
 

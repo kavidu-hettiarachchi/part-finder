@@ -42,57 +42,75 @@
                     </div>
 
                     <script type="application/javascript">
-                        document.getElementById('part-search').addEventListener('keyup', function () {
-                            let query = this.value;
-                            let results = document.getElementById('search-results');
+                        const searchInput = document.getElementById('part-search');
+                        const results = document.getElementById('search-results');
+                        let debounceTimer = null;
+                        let requestSeq = 0;
 
-                            if (query.length > 3) {
-                                results.innerHTML = '<li>Loading...</li>';
-                                console.log(`Fetching data for query: ${query}`);
+                        function setMessage(text) {
+                            results.replaceChildren();
+                            const li = document.createElement('li');
+                            li.textContent = text;
+                            results.appendChild(li);
+                        }
 
-                                fetch(`/parts/search?query=${query}`)
-                                    .then(response => {
-                                        if (!response.ok) {
-                                            throw new Error('Network response was not ok');
-                                        }
-                                        return response.json();
-                                    })
-                                    .then(data => {
-                                        console.log('Data fetched successfully:', data);
-                                        results.innerHTML = '';
-                                        if (data.length > 0) {
-                                            data.forEach(part => {
-                                                let li = document.createElement('li');
-                                                li.style.border = '1px solid #ccc';
-                                                li.style.padding = '10px';
-                                                li.style.marginBottom = '5px';
-                                                li.style.cursor = 'pointer';
-                                                li.innerText = `Control Number ${part.ieControlNumber} - Media Number ${part.mediaNumber}`;
-                                                li.addEventListener('click', () => {
-                                                    displayPartDetails(part);
-                                                });
-                                                results.appendChild(li);
-                                            });
-                                        } else {
-                                            results.innerHTML = '<li>No results found</li>';
-                                        }
-                                    })
-                                    .catch(error => {
-                                        results.innerHTML = '<li>Error loading suggestions</li>';
-                                        console.error('Error fetching data:', error);
-                                    });
-                            } else {
-                                results.innerHTML = '';
-                                document.getElementById('part-details').innerHTML = '';
+                        searchInput.addEventListener('input', function () {
+                            clearTimeout(debounceTimer);
+                            const query = this.value.trim();
+
+                            if (query.length <= 3) {
+                                requestSeq++;
+                                results.replaceChildren();
+                                document.getElementById('part-details').replaceChildren();
+                                return;
                             }
+
+                            debounceTimer = setTimeout(() => runSearch(query), 300);
                         });
+
+                        function runSearch(query) {
+                            const seq = ++requestSeq;
+                            setMessage('Loading...');
+
+                            fetch(`/parts/search?query=${encodeURIComponent(query)}`, {
+                                headers: {'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
+                                credentials: 'same-origin'
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (seq !== requestSeq) return; // stale response
+                                    results.replaceChildren();
+                                    if (data.length === 0) {
+                                        setMessage('No results found');
+                                        return;
+                                    }
+                                    data.forEach(part => {
+                                        const li = document.createElement('li');
+                                        li.style.border = '1px solid #ccc';
+                                        li.style.padding = '10px';
+                                        li.style.marginBottom = '5px';
+                                        li.style.cursor = 'pointer';
+                                        li.textContent = `Control Number ${part.ieControlNumber} - Media Number ${part.mediaNumber}`;
+                                        li.addEventListener('click', () => displayPartDetails(part));
+                                        results.appendChild(li);
+                                    });
+                                })
+                                .catch(() => {
+                                    if (seq === requestSeq) setMessage('Error loading suggestions');
+                                });
+                        }
 
                         function displayPartDetails(part) {
                             let details = document.getElementById('part-details');
                             details.innerHTML = `
         <h2>Part Details</h2>
         <div id="part-tree"></div>
-    `;
+    `; // static markup only; part data is rendered as text by jsTree (force_text)
 
                             // Create a tree structure from the part data
                             let treeData = [{
@@ -139,8 +157,8 @@
                                                 {text: `Reference Number: ${lineItem.referenceNumber  || 'N/A'}`},
                                                 {text: `Alternate Part Type: ${lineItem.alternatePartType  || 'N/A'}`},
                                                 {text: `Modifier: ${lineItem.modifier  || 'N/A'}`},
-                                                {text: `Modifier Language: ${lineItem.isCCRPart  || 'N/A'}`},
-                                                {text: `CCR Part: ${lineItem.modifierLanguage  === 0 ? 'No' : 'Yes'}`},
+                                                {text: `Modifier Language: ${lineItem.modifierLanguage || 'N/A'}`},
+                                                {text: `CCR Part: ${lineItem.isCCRPart === 0 ? 'No' : 'Yes'}`},
                                                 {text: `Alternate: ${lineItem.hasAlternate  === 0 ? 'No' : 'Yes'}`},
                                                 {text: `Serviceability Indicator: ${lineItem.serviceabilityIndicator === 0 ? 'No' : 'Yes'}`},
                                                 {
@@ -196,19 +214,13 @@
                                 ]
                             }];
 
-                            // Log the tree data for debugging
-                            console.log('Tree data:', treeData);
-
-                            // Render the tree view
+                            // Render the tree view (force_text: treat node text as plain text, never HTML)
                             $('#part-tree').jstree({
                                 'core': {
-                                    'data': treeData
+                                    'data': treeData,
+                                    'force_text': true
                                 }
                             });
-
-                            // Update the data view div
-                            let dataView = document.querySelector('.data-view');
-                            dataView.innerHTML = details.innerHTML;
                         }
 
                     </script>
